@@ -10,17 +10,26 @@ interface Review {
   comment: string;
 }
 
+interface Game {
+  id: number;
+  name: string;
+  background_image: string;
+  description_raw: string;
+  price?: number;
+}
+
 export default function ProductSheetPage() {
   const { slug } = useParams();
-  const [game, setGame] = useState(null);
+  const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useContext(UserContext);
+  const { addToCart } = useContext(UserContext) || {};
   const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([
     { user: "Juan", rating: 5, comment: "¡Me encantó este juego!" },
     { user: "María", rating: 4, comment: "Muy bueno, pero puede mejorar." },
   ]);
-  const [newReview, setNewReview] = useState({
+
+  const [newReview, setNewReview] = useState<Review>({
     user: "",
     rating: 5,
     comment: "",
@@ -29,12 +38,20 @@ export default function ProductSheetPage() {
   useEffect(() => {
     const fetchGameDetails = async () => {
       setLoading(true);
-      const response = await fetch(
-        `https://api.rawg.io/api/games/${slug}?key=${process.env.NEXT_PUBLIC_RAWG_API_KEY}`
-      );
-      const data = await response.json();
-      setGame(data);
-      setLoading(false);
+      try {
+        const response = await fetch(
+          `https://api.rawg.io/api/games/${slug}?key=${process.env.NEXT_PUBLIC_RAWG_API_KEY}`
+        );
+        if (!response.ok) {
+          throw new Error("Error al obtener el juego.");
+        }
+        const data = await response.json();
+        setGame(data);
+      } catch (error) {
+        console.error("Error al obtener el juego:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchGameDetails();
   }, [slug]);
@@ -43,7 +60,7 @@ export default function ProductSheetPage() {
     e.preventDefault();
     if (!newReview.user.trim() || !newReview.comment.trim()) return;
 
-    setReviews([...reviews, newReview]);
+    setReviews((prev) => [...prev, newReview]);
     setNewReview({ user: "", rating: 5, comment: "" });
   };
 
@@ -73,11 +90,12 @@ export default function ProductSheetPage() {
         alt={game.name}
         className="w-full rounded mb-4"
       />
-      <p>{game.description_raw}</p>
+      <p className="mt-2">{game.description_raw || "Sin descripción disponible."}</p>
       <p className="mt-2 font-semibold">Precio: $19.99</p>
       <button
-        onClick={() => addToCart({ ...game, price: 19.99 })}
+        onClick={() => addToCart ? addToCart({ ...game, price: 19.99 }) : null}
         className="mt-4 bg-green-500 text-white px-4 py-2 rounded"
+        disabled={!addToCart}
       >
         🛒 Añadir al Carrito
       </button>
@@ -85,8 +103,6 @@ export default function ProductSheetPage() {
       {/* Opiniones */}
       <div className="mt-8">
         <h3 className="text-2xl font-bold mb-4">Opiniones</h3>
-
-        {/* Lista de Opiniones */}
         {reviews.length === 0 ? (
           <p>No hay opiniones todavía.</p>
         ) : (

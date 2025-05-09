@@ -1,26 +1,31 @@
 // src/app/games/page.tsx
 "use client";
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { UserContext } from "@/context/UserContext";
+
+interface Game {
+  id: number;
+  name: string;
+  background_image?: string; // Ahora es opcional
+  rating?: number;           // Ahora es opcional
+}
 
 export default function GamesPage() {
-  const [games, setGames] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const { toggleFavorite, favorites, addToCart } = useContext(UserContext);
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchGames = async () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `https://api.rawg.io/api/games?key=${process.env.NEXT_PUBLIC_RAWG_API_KEY}&page_size=20`
+          `https://api.rawg.io/api/games?key=${process.env.NEXT_PUBLIC_RAWG_API_KEY}&page_size=12`
         );
         const data = await response.json();
-        setGames(data.results);
+        setGames(data.results || []);
       } catch (error) {
-        console.error("Error al cargar los juegos:", error);
+        console.error("Error fetching games:", error);
       } finally {
         setLoading(false);
       }
@@ -29,103 +34,63 @@ export default function GamesPage() {
     fetchGames();
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!search.trim()) return;
-    searchGames(search);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
-  const searchGames = async (query: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://api.rawg.io/api/games?key=${process.env.NEXT_PUBLIC_RAWG_API_KEY}&search=${query}&page_size=20`
-      );
-      const data = await response.json();
-      setGames(data.results);
-    } catch (error) {
-      console.error("Error al buscar juegos:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const filteredGames = games.filter((game) =>
+    game.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="p-4">
-      <h2 className="text-3xl mb-4">Catálogo de Juegos</h2>
-
-      {/* Formulario de Búsqueda */}
-      <form onSubmit={handleSearch} className="mb-4 flex items-center">
+    <div className="p-4 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Catálogo de Juegos</h1>
+      
+      {/* Buscador */}
+      <div className="mb-4">
         <input
           type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar juegos..."
-          className="px-4 py-2 border rounded w-full"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="w-full p-2 border rounded"
         />
-        <button
-          type="submit"
-          className="ml-2 bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Buscar
-        </button>
-      </form>
+      </div>
 
-      {/* Loading */}
+      {/* Cargando */}
       {loading ? (
         <div className="text-center">Cargando juegos...</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {games.map((game) => (
-            <div key={game.id} className="p-4 border rounded shadow-md">
-              <img
-                src={game.background_image}
-                alt={game.name}
-                className="w-full h-40 object-cover rounded mb-2"
-              />
-              
-              {/* Enlace a la página de detalle del juego */}
-              <Link href={`/game/${game.id}`}>
-                <h3 className="text-lg font-bold hover:underline cursor-pointer">
-                  {game.name}
-                </h3>
-              </Link>
-              <p className="text-sm">Rating: {game.rating} ⭐</p>
-
-              <div className="flex justify-between mt-2">
-                {/* Botón de Favorito */}
-                <button
-                  onClick={() => toggleFavorite(game)}
-                  className={`px-2 py-1 rounded ${
-                    favorites.some((fav) => fav.id === game.id)
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-200"
-                  }`}
-                >
-                  {favorites.some((fav) => fav.id === game.id)
-                    ? "❤️ Quitar de Favoritos"
-                    : "🤍 Añadir a Favoritos"}
-                </button>
-
-                {/* Botón de Añadir al Carrito */}
-                <button
-                  onClick={() => addToCart(game)}
-                  className="px-2 py-1 bg-blue-500 text-white rounded"
-                >
-                  🛒 Añadir al Carrito
-                </button>
-              </div>
-
-              {/* Nuevo botón "Ver Más" */}
-              <div className="mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {filteredGames.length > 0 ? (
+            filteredGames.map((game) => (
+              <div
+                key={game.id}
+                className="p-4 border rounded shadow-md hover:bg-gray-50 transition"
+              >
+                {game.background_image ? (
+                  <img
+                    src={game.background_image}
+                    alt={game.name || "Juego"}
+                    className="w-full h-40 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                    Sin Imagen
+                  </div>
+                )}
+                <h2 className="text-lg font-semibold mt-2">{game.name || "Juego sin nombre"}</h2>
+                <p>⭐ {game.rating ? game.rating : "Sin calificación"}</p>
                 <Link href={`/product-sheety/${game.id}`}>
-                  <button className="w-full bg-green-500 text-white px-2 py-1 rounded">
+                  <button className="mt-2 w-full bg-blue-500 text-white py-1 rounded">
                     Ver Más
                   </button>
                 </Link>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center">No se encontraron juegos.</p>
+          )}
         </div>
       )}
     </div>
