@@ -1,16 +1,16 @@
-// src/app/login/page.tsx
+// src/app/register/page.tsx
 "use client";
 import { useState, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/context/UserContext";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const { loginUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     const userData = { name, email };
     loginUser(userData);
@@ -19,8 +19,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-3xl mb-4">Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} className="flex flex-col space-y-4 w-64">
+      <h2 className="text-3xl mb-4">Registro de Usuario</h2>
+      <form onSubmit={handleRegister} className="flex flex-col space-y-4 w-64">
         <input
           type="text"
           placeholder="Nombre"
@@ -35,8 +35,8 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
           className="p-2 border rounded"
         />
-        <button type="submit" className="bg-blue-500 text-white py-2 rounded">
-          Iniciar Sesión
+        <button type="submit" className="bg-green-500 text-white py-2 rounded">
+          Registrarse
         </button>
       </form>
     </div>

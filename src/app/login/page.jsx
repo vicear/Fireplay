@@ -1,16 +1,15 @@
-// src/app/login/page.tsx
 "use client";
 import { useState, useContext } from "react";
-import { useRouter } from "next/navigation";
 import { UserContext } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function Login() {
   const { loginUser } = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     const userData = { name, email };
     loginUser(userData);
@@ -18,24 +17,24 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-3xl mb-4">Iniciar Sesión</h2>
-      <form onSubmit={handleLogin} className="flex flex-col space-y-4 w-64">
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h2 className="text-2xl mb-4">Iniciar Sesión</h2>
+      <form onSubmit={handleLogin} className="flex flex-col space-y-4">
         <input
           type="text"
           placeholder="Nombre"
+          className="p-2 border rounded"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="p-2 border rounded"
         />
         <input
           type="email"
           placeholder="Correo electrónico"
+          className="p-2 border rounded"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border rounded"
         />
-        <button type="submit" className="bg-blue-500 text-white py-2 rounded">
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
           Iniciar Sesión
         </button>
       </form>

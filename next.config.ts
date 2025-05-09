@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+const withPWA = require("next-pwa")({
+  dest: "public",
+});
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
-
-export default nextConfig;
+module.exports = withPWA({
+  reactStrictMode: true,
+  images: {
+    domains: ['images.rawg.io'], // Dominio de RAWG API
+  },
+});
