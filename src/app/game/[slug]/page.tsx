@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useUserContext } from "@/context/UserContext";
-import type { Game } from "@/context/UserContext";
+import { useUserContext } from "../../context/UserContext";
+import type { Game } from "../../context/UserContext";
 
 export default function GameDetailPage() {
     const { slug } = useParams();

@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState, useContext } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { UserContext } from "@/context/UserContext";
+import { useUserContext } from "../../context/UserContext";
 
 interface Review {
   user: string;
