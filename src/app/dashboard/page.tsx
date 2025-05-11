@@ -5,45 +5,71 @@ import { UserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const { user, logoutUser, favorites, cart } = useContext(UserContext);
+  const { user, favorites, cart, logout } = useContext(UserContext);
   const router = useRouter();
 
   if (!user) {
-    router.push("/login");
-    return null;
+    return (
+      <div className="p-4 text-center">
+        <h2 className="text-2xl mb-4">Debes iniciar sesión para ver tu panel.</h2>
+        <button
+          onClick={() => router.push("/login")}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Iniciar Sesión
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="p-4">
-      <h2 className="text-3xl mb-4">Bienvenido, {user.name}!</h2>
-      <p>Email: {user.email}</p>
-      <button
-        onClick={() => {
-          logoutUser();
-          router.push("/login");
-        }}
-        className="bg-red-500 text-white py-2 px-4 rounded mt-4"
-      >
-        Cerrar Sesión
-      </button>
+    <div className="p-4 max-w-3xl mx-auto">
+      <h2 className="text-3xl font-bold mb-4">Panel de Usuario</h2>
+      <div className="p-4 border rounded mb-4 bg-gray-50 shadow-md">
+        <h3 className="text-2xl font-semibold">👤 Información de Usuario</h3>
+        <p><strong>Nombre:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
+        <button
+          onClick={logout}
+          className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Cerrar Sesión
+        </button>
+      </div>
 
-      <h3 className="mt-4 text-xl">Juegos Favoritos</h3>
-      <ul>
-        {favorites.length ? (
-          favorites.map((game) => <li key={game.id}>{game.name}</li>)
+      <div className="p-4 border rounded mb-4 bg-gray-50 shadow-md">
+        <h3 className="text-2xl font-semibold">⭐ Tus Favoritos</h3>
+        {favorites.length === 0 ? (
+          <p>No tienes juegos en favoritos.</p>
         ) : (
-          <p>No tienes juegos favoritos.</p>
+          <ul className="list-disc list-inside">
+            {favorites.map((game, index) => (
+              <li key={index} className="mb-2">
+                {game.name}
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+      </div>
 
-      <h3 className="mt-4 text-xl">Carrito de Compras</h3>
-      <ul>
-        {cart.length ? (
-          cart.map((game) => <li key={game.id}>{game.name}</li>)
+      <div className="p-4 border rounded mb-4 bg-gray-50 shadow-md">
+        <h3 className="text-2xl font-semibold">🛒 Tu Carrito</h3>
+        {cart.length === 0 ? (
+          <p>No tienes juegos en el carrito.</p>
         ) : (
-          <p>Tu carrito está vacío.</p>
+          <ul className="list-disc list-inside">
+            {cart.map((item, index) => (
+              <li key={index} className="flex justify-between items-center mb-2">
+                <span>{item.name}</span>
+                <span>${item.price.toFixed(2)}</span>
+              </li>
+            ))}
+          </ul>
         )}
-      </ul>
+        <p className="mt-2 font-bold">
+          Total: ${cart.reduce((total, item) => total + item.price, 0).toFixed(2)}
+        </p>
+      </div>
     </div>
   );
 }

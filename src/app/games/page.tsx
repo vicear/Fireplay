@@ -76,16 +76,14 @@ export default function GamesPage() {
         <div className="text-center">Cargando juegos...</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {games.map((game) => (
+          {games.map((game: any) => (
             <div key={game.id} className="p-4 border rounded shadow-md">
               <img
                 src={game.background_image}
                 alt={game.name}
                 className="w-full h-40 object-cover rounded mb-2"
               />
-              
-              {/* Enlace a la página de detalle del juego */}
-              <Link href={`/game/${game.id}`}>
+              <Link href={`/product-sheety/${game.id}`}>
                 <h3 className="text-lg font-bold hover:underline cursor-pointer">
                   {game.name}
                 </h3>
@@ -93,7 +91,6 @@ export default function GamesPage() {
               <p className="text-sm">Rating: {game.rating} ⭐</p>
 
               <div className="flex justify-between mt-2">
-                {/* Botón de Favorito */}
                 <button
                   onClick={() => toggleFavorite(game)}
                   className={`px-2 py-1 rounded ${
@@ -107,22 +104,12 @@ export default function GamesPage() {
                     : "🤍 Añadir a Favoritos"}
                 </button>
 
-                {/* Botón de Añadir al Carrito */}
                 <button
                   onClick={() => addToCart(game)}
                   className="px-2 py-1 bg-blue-500 text-white rounded"
                 >
                   🛒 Añadir al Carrito
                 </button>
-              </div>
-
-              {/* Nuevo botón "Ver Más" */}
-              <div className="mt-2">
-                <Link href={`/product-sheety/${game.id}`}>
-                  <button className="w-full bg-green-500 text-white px-2 py-1 rounded">
-                    Ver Más
-                  </button>
-                </Link>
               </div>
             </div>
           ))}
