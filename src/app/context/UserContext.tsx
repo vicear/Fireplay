@@ -1,7 +1,7 @@
 // src/context/UserContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Tipado de plataformas
 interface PlatformInfo {
@@ -19,12 +19,21 @@ export interface Game {
   rating: number;
   description_raw?: string;
   platforms?: PlatformInfo[];
-  price?: number;
-  quantity?: number; // Para el carrito
+  price: number;
+  quantity: number; // Siempre requerido en el carrito
+}
+
+// Tipado de usuario
+interface User {
+  name: string;
+  email: string;
 }
 
 // Tipo del contexto
 interface UserContextType {
+  user: User | null;
+  login: (user: User) => void;
+  logout: () => void;
   favorites: Game[];
   toggleFavorite: (game: Game) => void;
   cart: Game[];
@@ -36,8 +45,25 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [favorites, setFavorites] = useState<Game[]>([]);
   const [cart, setCart] = useState<Game[]>([]);
+
+  useEffect(() => {
+    // Cargar favoritos desde localStorage
+    const storedFavorites = localStorage.getItem("favorites");
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Guardar favoritos en localStorage
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
+
+  const login = (userData: User) => setUser(userData);
+  const logout = () => setUser(null);
 
   const toggleFavorite = (game: Game) => {
     const exists = favorites.find((fav) => fav.id === game.id);
@@ -54,7 +80,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setCart(
         cart.map((item) =>
           item.id === game.id
-            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       );
@@ -82,7 +108,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <UserContext.Provider
-      value={{ favorites, toggleFavorite, cart, addToCart, removeFromCart, updateCartQuantity }}
+      value={{
+        user,
+        login,
+        logout,
+        favorites,
+        toggleFavorite,
+        cart,
+        addToCart,
+        removeFromCart,
+        updateCartQuantity,
+      }}
     >
       {children}
     </UserContext.Provider>

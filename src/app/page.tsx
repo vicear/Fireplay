@@ -2,10 +2,10 @@
 "use client";
 import { useState, useContext } from "react";
 import { useRouter } from "next/navigation";
-import { UserContext } from "@/context/UserContext";
+import { useUserContext } from "./context/UserContext";
 
 export default function LoginPage() {
-  const { loginUser } = useContext(UserContext);
+  //const { loginUser } = useContext(useUserContext);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const router = useRouter();
@@ -13,7 +13,7 @@ export default function LoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const userData = { name, email };
-    loginUser(userData);
+    //loginUser(userData);
     router.push("/dashboard");
   };
 

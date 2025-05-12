@@ -1,10 +1,17 @@
-const withPWA = require("next-pwa")({
-  dest: "public",
-});
-
-module.exports = withPWA({
-  reactStrictMode: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
-    domains: ['images.rawg.io'], // Dominio de RAWG API
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "media.rawg.io",
+        pathname: "/media/**",
+      },
+    ],
   },
-});
+  experimental: {
+    turbo: false,
+  },
+};
+
+module.exports = nextConfig;

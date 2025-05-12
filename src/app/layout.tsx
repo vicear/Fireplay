@@ -1,5 +1,5 @@
 // src/app/layout.tsx (agregando el menú)
-import { UserProvider } from "@/context/UserContext";
+import { UserProvider } from "./context/UserContext"; // ✅ CORRECTO
 import Link from "next/link";
 import "./globals.css";
 
